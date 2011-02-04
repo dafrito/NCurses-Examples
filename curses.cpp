@@ -1,6 +1,7 @@
 #include <string>
 #include <random>
 #include <ncurses.h>
+#include <iostream>
 
 using std::string;
 
@@ -48,4 +49,11 @@ int main(void)
 	}
 	endwin();
 	return 0;
+}
+
+void die(const string& v)
+{
+	endwin();
+	std::cerr << v << std::endl;
+	exit(1);
 }
