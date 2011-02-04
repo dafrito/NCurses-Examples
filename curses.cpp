@@ -14,47 +14,45 @@ int main(void)
 {
 	initscr();
 
-	vector<string> options;
-	options.push_back("Read the News");
-	options.push_back("Fill the Bucket");
-	options.push_back("Save the Options");
-	options.push_back("Exit");
+	if (!has_colors() || start_color() != OK)
+		die("Terminal failed to start colors");
 
-	mvaddstr(0, 0, "Main Menu");
 
-	for (unsigned int i = 0; i < options.size(); i++) {
-		mvprintw(4+(i*2), 10, "%d. %s", i+1, options[i].c_str());
-	}
+	WINDOW *help;
+	if ((help = newwin(0,0,0,0)) == NULL)
+		die("Couldn't create new window");
+	
+	mvwaddstr(help, 0, 0, "Looking for help?");
+	mvwaddstr(help, 2, 0, "It sadly does not reside here.");
+	mvwaddstr(help, 4, 0, "Perhaps elsewhere!");
+	mvwaddstr(help, 6, 0, "Press enter to go back");
 
-	mvprintw(4+(options.size()*2)+1, 10, "Use arrow keys to move; Enter to select:");
+	addstr("Typer Program\n");
+	addstr("Press + for help!\n\n");
+	refresh();
 
 	keypad(stdscr, TRUE);
-	nodelay(stdscr, TRUE);
 	noecho();
 
-	int selection = 0;
 	while(true) {
 		int ch = getch();
-		mvchgat(4+(selection*2), 10+3, options[selection].length(), 0, 0, NULL);
-		switch(ch) {
-			case KEY_DOWN:
-				selection++;
+		refresh();
+		switch (ch) {
+			case '+':
+				touchwin(help);
+				wrefresh(help);
+				getch();
+				touchwin(stdscr);
+				refresh();
 				break;
-			case KEY_UP:
-				selection--;
+			case '~':
+				endwin();
+				exit(0);
 				break;
-			case '\n':
-			case KEY_ENTER:
-				if (options[selection] == "Exit") {
-					endwin();
-					exit(0);
-				}
-				break;
+			default:
+				addch(ch);
 		}
-		selection=std::min(std::max(selection, 0), (int)(options.size()-1));
-		mvchgat(4+(selection*2), 10+3, options[selection].length(), A_REVERSE, 0, NULL);
 	}
-
 	endwin();
 	return 0;
 }
