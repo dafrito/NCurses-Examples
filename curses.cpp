@@ -43,6 +43,13 @@ int main(void)
 			case KEY_UP:
 				selection--;
 				break;
+			case '\n':
+			case KEY_ENTER:
+				if (options[selection] == "Exit") {
+					endwin();
+					exit(0);
+				}
+				break;
 		}
 		selection=std::min(std::max(selection, 0), (int)(options.size()-1));
 		mvchgat(4+(selection*2), 10+3, options[selection].length(), A_REVERSE, 0, NULL);
