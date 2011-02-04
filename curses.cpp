@@ -2,10 +2,10 @@
 #include <random>
 #include <ncurses.h>
 
-using namespace std;
+using std::string;
 
-mt19937 eng;
-bernoulli_distribution unif(.5);
+std::mt19937 eng;
+std::bernoulli_distribution unif(.5);
 
 bool should_bold()
 {
