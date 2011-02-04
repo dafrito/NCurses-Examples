@@ -1,6 +1,6 @@
-cur: *.cpp
-	g++ -o cur `pkg-config --libs ncurses` *.cpp
+a.out: *.cpp
+	g++ `pkg-config --libs ncurses` *.cpp
 
 clean:
-	rm -f cur
+	rm -f a.out
 .PHONY: clean
