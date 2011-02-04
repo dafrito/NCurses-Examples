@@ -39,7 +39,7 @@ int main(void)
 {
 	initscr();
 	while (true) {
-		for (int i = 0; i < 53; ++i) {
+		for (int i = 0; i < LINES; ++i) {
 			fake_type("I love my baby babe! But sadly she is fat.\n");
 		}
 		refresh();
