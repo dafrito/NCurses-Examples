@@ -1,28 +1,51 @@
-#include <ctime>
 #include <string>
 #include <random>
 #include <ncurses.h>
 
 using namespace std;
 
-mt19937 eng(time(NULL));
-normal_distribution<double> unif(100, 50);
-variate_generator<mt19937, normal_distribution<double> > randn(eng, unif);
+mt19937 eng;
+bernoulli_distribution unif(.5);
+
+bool should_bold()
+{
+	return unif(eng);
+}
+
+const string delims(" \t,.;!\n");
+const int ATTRS = A_BOLD | A_UNDERLINE;
 
 void fake_type(const string& text)
 {
-	string::const_iterator it;
-	for (it = text.begin(); it != text.end(); it++) {
-		addch(*it);
-		refresh();
-		napms(randn());
+	string::size_type b, e;
+	b = text.find_first_not_of(delims);
+	while(b != string::npos) {
+		e = text.find_first_of(delims, b);
+		if (e == string::npos) {
+			e = text.length();
+		}
+		// Add the word.
+		if (should_bold())
+			attrset(ATTRS);
+		addstr(text.substr(b, e-b).c_str());
+		attroff(ATTRS);
+		b = text.find_first_not_of(delims, e);
+		// Add the delimiter text.
+		addstr(text.substr(e, b-e).c_str());
 	}
 }
 
 int main(void)
 {
 	initscr();
-	fake_type("Greetings from NCurses!\n");
+	while (true) {
+		for (int i = 0; i < 53; ++i) {
+			fake_type("I love my baby babe! But sadly she is fat.\n");
+		}
+		refresh();
+		napms(100);
+		clear();
+	}
 	endwin();
 	return 0;
 }
