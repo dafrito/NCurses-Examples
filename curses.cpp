@@ -1,53 +1,51 @@
 #include <vector>
+#include <cmath>
 #include <string>
 #include <ncurses.h>
 #include <iostream>
 #include <stdexcept>
 
 using std::string;
+using std::vector;
 
 void die(const string& msg);
-
-class Marquee
-{
-private:
-	int row;
-	string text;
-	unsigned int position;
-public:
-	Marquee(int row, const string& text) : row(row), text(text), position(0) {
-		if(this->text.empty()) {
-			throw std::length_error("Text was empty");
-		}
-	}
-	void Draw();
-};
-
-void Marquee::Draw()
-{
-	if (this->position==this->text.length()) {
-		this->position=0;
-	}
-	mvdelch(this->row, 0);
-	mvinsch(this->row, COLS-1, this->text[this->position]);
-	++this->position;
-}
 
 int main(void)
 {
 	initscr();
-	const string text("WARNING * ");
 
-	std::vector<Marquee> marquees;
-	for (int i=0; i < 10; i++)
-		marquees.push_back(Marquee(i, text));
+	vector<string> options;
+	options.push_back("Read the News");
+	options.push_back("Fill the Bucket");
+	options.push_back("Save the Options");
+	options.push_back("Exit");
 
+	mvaddstr(0, 0, "Main Menu");
+
+	for (unsigned int i = 0; i < options.size(); i++) {
+		mvprintw(4+(i*2), 10, "%d. %s", i+1, options[i].c_str());
+	}
+
+	mvprintw(4+(options.size()*2)+1, 10, "Use arrow keys to move; Enter to select:");
+
+	keypad(stdscr, TRUE);
+	nodelay(stdscr, TRUE);
+	noecho();
+
+	int selection = 0;
 	while(true) {
-		refresh();
-		for (std::vector<Marquee>::iterator it=marquees.begin(); it != marquees.end(); ++it) {
-			(*it).Draw();
+		int ch = getch();
+		mvchgat(4+(selection*2), 10+3, options[selection].length(), 0, 0, NULL);
+		switch(ch) {
+			case KEY_DOWN:
+				selection++;
+				break;
+			case KEY_UP:
+				selection--;
+				break;
 		}
-		napms(100);
+		selection=std::min(std::max(selection, 0), (int)(options.size()-1));
+		mvchgat(4+(selection*2), 10+3, options[selection].length(), A_REVERSE, 0, NULL);
 	}
 
 	endwin();
