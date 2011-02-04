@@ -5,9 +5,30 @@
 
 using std::string;
 
+void die(const string& msg);
+void print(const string& msg);
+
+int main(void)
+{
+	initscr();
+	
+	if (!has_colors() || start_color() != OK)
+		die("Terminal failed to start colors");
+
+	while (true) {
+		for (int i = 0; i < LINES; ++i) {
+			print("I love my baby babe! But sadly she is fat.\n");
+		}
+		refresh();
+		napms(100);
+		clear();
+	}
+	endwin();
+	return 0;
+}
+
 std::mt19937 eng;
 std::bernoulli_distribution unif(.5);
-
 bool should_bold()
 {
 	return unif(eng);
@@ -15,8 +36,7 @@ bool should_bold()
 
 const string delims(" \t,.;!\n");
 const int ATTRS = A_BOLD | A_UNDERLINE;
-
-void fake_type(const string& text)
+void print(const string& text)
 {
 	string::size_type b, e;
 	b = text.find_first_not_of(delims);
@@ -34,21 +54,6 @@ void fake_type(const string& text)
 		// Add the delimiter text.
 		addstr(text.substr(e, b-e).c_str());
 	}
-}
-
-int main(void)
-{
-	initscr();
-	while (true) {
-		for (int i = 0; i < LINES; ++i) {
-			fake_type("I love my baby babe! But sadly she is fat.\n");
-		}
-		refresh();
-		napms(100);
-		clear();
-	}
-	endwin();
-	return 0;
 }
 
 void die(const string& v)
