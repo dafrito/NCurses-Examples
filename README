@@ -1,0 +1,17 @@
+This is a collection of tiny programs I've done in NCurses. None of them are
+especially useful, but they're interesting. Many are implementations of ideas
+and examples gained from Dan Gookin's excellent book, "Programmer's Guide to
+nCurses".
+
+Peruse them by just checking out individual tags, like so:
+
+$ git tag -l
+... choose a tag ...
+$ git checkout $YOUR_TAG
+$ make
+$ ./a.out
+
+This is perhaps an abusive use of git, but it's worked very well for me personally.
+
+--
+Aaron Faanes <dafrito@gmail.com>
