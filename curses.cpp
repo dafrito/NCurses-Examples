@@ -10,6 +10,41 @@ using std::vector;
 
 void die(const string& msg);
 
+class BinaryNumber
+{
+private:
+	WINDOW* const window;
+
+	static const unsigned int COLS=2;
+	static const unsigned int LINES=4;
+public:
+	BinaryNumber(const int& x, const int& y) : 
+		window(newwin(BinaryNumber::LINES, BinaryNumber::COLS, x, y))
+	{
+		if(this->window == NULL)
+			die("Window failed to initialize");
+		wbkgd(this->window, '*');
+	}
+
+	void Set(const int& number);
+	~BinaryNumber() {
+		delwin(this->window);
+	}
+};
+
+void BinaryNumber::Set(const int& number)
+{
+	mvwchgat(this->window, 3, 1, 1, (number & 1 << 0 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 2, 1, 1, (number & 1 << 1 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 1, 1, 1, (number & 1 << 2 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 0, 1, 1, (number & 1 << 3 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 3, 0, 1, (number & 1 << 4 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 2, 0, 1, (number & 1 << 5 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 1, 0, 1, (number & 1 << 6 ? A_BOLD : 0), 0, 0);
+	mvwchgat(this->window, 0, 0, 1, (number & 1 << 7 ? A_BOLD : 0), 0, 0);
+	wrefresh(this->window);
+}
+
 int main(void)
 {
 	initscr();
@@ -17,52 +52,13 @@ int main(void)
 	if (!has_colors() || start_color() != OK)
 		die("Terminal failed to start colors");
 
-	WINDOW *left, *right;
+	curs_set(0);
 
-	int maxl, maxc;
-	getmaxyx(stdscr, maxl, maxc);
-	int halfc = maxc / 2;
+	BinaryNumber num(0,0);
+	for (int i=0; i < 60; i++) {
+		num.Set(i);
+		napms(1000);
 
-	const char* errmsg = "Couldn't create new window";
-	// We use (max - half) since an odd number of lines or columns will result in a visible gap.
-	if ((left  = newwin(maxl, halfc,        0, 0    )) == NULL) die(errmsg);
-	if ((right = newwin(maxl, maxc - halfc, 0, halfc)) == NULL) die(errmsg);
-
-	init_pair(1, COLOR_WHITE, COLOR_BLACK);
-	init_pair(2, COLOR_BLACK, COLOR_WHITE);
-
-	mvwaddstr(left,  0, 0, "Normal\n");
-	mvwaddstr(right, 0, 0, "ROT13\n");
-
-	wbkgd(left,  COLOR_PAIR(1));
-	wbkgd(right, COLOR_PAIR(2));
-
-	wrefresh(right);
-	wrefresh(left);
-
-	noecho();
-	int ch;
-	while (true) {
-		ch = wgetch(left);
-		if (ch == '~')
-			break;
-
-		waddch(left, ch);
-		if (ch >= 'a' && ch <= 'z') {
-			if (ch >= 'n')
-				ch='a' + (ch - 'n');
-			else
-				ch=ch + 13;
-		} else if (ch >= 'A' && ch <= 'Z') {
-			if (ch >= 'N')
-				ch='A' + (ch - 'N');
-			else
-				ch=ch + 13;
-		}
-		waddch(right, ch);
-
-		wrefresh(right);
-		wrefresh(left);
 	}
 	endwin();
 	return 0;
