@@ -17,57 +17,52 @@ int main(void)
 	if (!has_colors() || start_color() != OK)
 		die("Terminal failed to start colors");
 
-	WINDOW *tl, *tr, *bl, *br;
+	WINDOW *left, *right;
 
-	int maxl, maxc, halfl, halfc;
+	int maxl, maxc;
 	getmaxyx(stdscr, maxl, maxc);
-	halfl = maxl / 2;
-	halfc = maxc / 2;
+	int halfc = maxc / 2;
 
 	const char* errmsg = "Couldn't create new window";
 	// We use (max - half) since an odd number of lines or columns will result in a visible gap.
-	if ((tl = newwin(halfl,        halfc,        0,     0    )) == NULL) die(errmsg);
-	if ((tr = newwin(halfl,        maxc - halfc, 0,     halfc)) == NULL) die(errmsg);
-	if ((bl = newwin(maxl - halfl, halfc,        halfl, 0    )) == NULL) die(errmsg);
-	if ((br = newwin(maxl - halfl, maxc - halfc, halfl, halfc)) == NULL) die(errmsg);
+	if ((left  = newwin(maxl, halfc,        0, 0    )) == NULL) die(errmsg);
+	if ((right = newwin(maxl, maxc - halfc, 0, halfc)) == NULL) die(errmsg);
 
-	init_pair(1, COLOR_BLACK, COLOR_BLUE);
-	init_pair(2, COLOR_YELLOW, COLOR_RED);
-	init_pair(3, COLOR_BLACK, COLOR_GREEN);
-	init_pair(4, COLOR_WHITE, COLOR_CYAN);
+	init_pair(1, COLOR_WHITE, COLOR_BLACK);
+	init_pair(2, COLOR_BLACK, COLOR_WHITE);
 
-	mvwaddstr(tl, 0, 0, "Topleft\n");
-	mvwaddstr(tr, 0, 0, "Topright\n");
-	mvwaddstr(bl, 0, 0, "Bottomleft\n");
-	mvwaddstr(br, 0, 0, "Bottomright\n");
+	mvwaddstr(left,  0, 0, "Normal\n");
+	mvwaddstr(right, 0, 0, "ROT13\n");
 
-	wbkgd(tl, COLOR_PAIR(1));
-	wbkgd(tr, COLOR_PAIR(2) | A_BOLD);
-	wbkgd(bl, COLOR_PAIR(3));
-	wbkgd(br, COLOR_PAIR(4) | A_BOLD);
+	wbkgd(left,  COLOR_PAIR(1));
+	wbkgd(right, COLOR_PAIR(2));
 
-	refresh();
-	wrefresh(tl);
-	wrefresh(tr);
-	wrefresh(bl);
-	wrefresh(br);
+	wrefresh(right);
+	wrefresh(left);
 
 	noecho();
 	int ch;
 	while (true) {
-		ch = getch();
+		ch = wgetch(left);
 		if (ch == '~')
 			break;
 
-		waddch(tl, ch);
-		waddch(tr, ch);
-		waddch(bl, ch);
-		waddch(br, ch);
+		waddch(left, ch);
+		if (ch >= 'a' && ch <= 'z') {
+			if (ch >= 'n')
+				ch='a' + (ch - 'n');
+			else
+				ch=ch + 13;
+		} else if (ch >= 'A' && ch <= 'Z') {
+			if (ch >= 'N')
+				ch='A' + (ch - 'N');
+			else
+				ch=ch + 13;
+		}
+		waddch(right, ch);
 
-		wrefresh(tl);
-		wrefresh(tr);
-		wrefresh(bl);
-		wrefresh(br);
+		wrefresh(right);
+		wrefresh(left);
 	}
 	endwin();
 	return 0;
